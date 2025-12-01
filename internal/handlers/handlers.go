@@ -14,6 +14,11 @@ var index []byte
 
 func HandleRoot(res http.ResponseWriter, req *http.Request) {
 
+	if req.URL.Path != "/" {
+		http.NotFound(res, req)
+		return
+	}
+
 	if req.Method != http.MethodGet {
 		http.Error(res, "method not allowed", http.StatusMethodNotAllowed)
 		return
