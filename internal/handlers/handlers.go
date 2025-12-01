@@ -69,9 +69,11 @@ func HandleUpload(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusOK)
 
 	msg := struct {
-		Result string `json:"result"`
+		Original string `json:"original"`
+		Result   string `json:"result"`
 	}{
-		Result: result,
+		Original: string(bufer),
+		Result:   result,
 	}
 
 	response, err := json.MarshalIndent(msg, "", "    ")
