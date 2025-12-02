@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"os"
@@ -14,8 +15,6 @@ var index []byte
 
 func HandleRoot(res http.ResponseWriter, req *http.Request) {
 
-	res.Header().Set("Content-Type", "text/html")
-
 	if req.Method != http.MethodGet {
 		http.Error(res, "method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -27,6 +26,7 @@ func HandleRoot(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	res.Header().Set("Content-Type", "text/html")
 	res.WriteHeader(http.StatusOK)
 	res.Write(data)
 
@@ -97,13 +97,22 @@ func getIndex() ([]byte, error) {
 		return index, nil
 	}
 
-	data, err := os.ReadFile("../index.html")
-	if err != nil {
-		return []byte{}, err
+	nameArr := []string{"../", "./", "/", ""}
+
+	var nameFile string
+	for _, v := range nameArr {
+		nameFile = v + "index.html"
+		_, err := os.Stat(nameFile)
+		if !errors.Is(err, os.ErrNotExist) {
+			data, err := os.ReadFile(nameFile)
+			if err != nil {
+				return []byte{}, err
+			}
+			index = data
+			return index, nil
+		}
 	}
 
-	index = data
-
-	return index, nil
+	return []byte{}, errors.New("file 'index.html' does not exist")
 
 }
